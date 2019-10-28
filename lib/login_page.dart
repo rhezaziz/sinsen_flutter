@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import 'validasi.dart';
 //import 'package:login/home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -8,42 +9,81 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => new _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with Validasi{
+  final formKey = GlobalKey<FormState>();
+
+  String emailInput = '';
+  String passwordInput = '';
+
   @override
-  Widget build(BuildContext context) {
-    final logo = Hero(
-      tag: 'hero',
-      child: CircleAvatar(
-        backgroundColor: Colors.transparent,
-        radius: 48.0,
-        child: Image.asset('asset/logo.png'),
+  Widget build(context) {
+    
+    return Container(
+      margin: EdgeInsets.all(20.0),
+      child: Form(
+        key: formKey,
+        child: ListView(
+          children: [
+            SizedBox(height: 100.0),
+            Image.asset('asset/logosinsen.png', width: 70.0 , height: 70.0,
+        ),
+            SizedBox(height: 40.0),
+            email(),
+            SizedBox(height: 10.0),
+            password(),
+            SizedBox(height: 24.0),
+            loginButton(),
+          ],
+        )
       ),
     );
 
-    final email = TextFormField(
+  }
+  
+
+
+    //
+      Widget email(){
+        return TextFormField(
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
       initialValue: '',
       decoration: InputDecoration(
+        labelText: 'Email',
         hintText: 'Masukkan Email',
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
       ),
+      validator: validasiEmail,
+      onSaved: (String value){
+        emailInput = value;
+      },
     );
+  }
+  
 
-    final password = TextFormField(
+   
+      Widget password(){
+        return TextFormField(
       autofocus: false,
       initialValue: '',
       obscureText: true,
       decoration: InputDecoration(
+        labelText: 'Password',
         hintText: 'Masukkan Password',
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+       contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+       border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
       ),
+      validator: validasiPassword,
+      onSaved: (String value){
+        passwordInput = value;
+      },
     );
-
-    final loginButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+  }
+  // 
+     Widget loginButton(){
+       return Padding(
+         padding: EdgeInsets.symmetric(vertical: 16.0),
       child: Material(
         borderRadius: BorderRadius.circular(30.0),
         shadowColor: Colors.lightBlueAccent.shade100,
@@ -52,38 +92,15 @@ class _LoginPageState extends State<LoginPage> {
           minWidth: 200.0,
           height: 42.0,
           onPressed: () {
-            Navigator.of(context).pushNamed(HomePage.tag);
+            if (formKey.currentState.validate()) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()),);
+          
+          formKey.currentState.save();
+  
+            }
           },
           color: Colors.lightBlueAccent,
           child: Text('Login', style: TextStyle(color: Colors.white)),
-        ),
-      ),
-    );
-
-    final forgotLabel = FlatButton(
-      child: Text(
-        'Lupa password?',
-        style: TextStyle(color: Colors.black54),
-      ),
-      onPressed: () {},
-    );
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.only(left: 24.0, right: 24.0),
-          children: <Widget>[
-            logo,
-            SizedBox(height: 48.0),
-            email,
-            SizedBox(height: 8.0),
-            password,
-            SizedBox(height: 24.0),
-            loginButton,
-            forgotLabel
-          ],
         ),
       ),
     );

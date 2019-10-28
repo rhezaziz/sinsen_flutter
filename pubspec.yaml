@@ -45,6 +45,7 @@ flutter:
   assets:
     - asset/saya.jpg
     - asset/logo.png
+    - asset/logosinsen.png
   fonts:
     - family: nyoba_font
       fonts:

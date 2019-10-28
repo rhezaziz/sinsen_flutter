@@ -12,6 +12,21 @@ class MyApp extends StatelessWidget {
   };
   @override
   Widget build(BuildContext context) {
+    // return MaterialApp(
+    //   title: 'Sinsen',
+    //   debugShowCheckedModeBanner: false,
+    //   theme: ThemeData(
+    //       primarySwatch: Colors.lightBlue,
+    //       fontFamily: 'nyoba_font'
+    //   ),
+    //   home: LoginPage(),
+    //   routes: routes,
+    //   // theme: ThemeData(
+        
+    //   //   primarySwatch: Colors.blue,
+    //   // ),
+    //   // home: MyHomePage(title: 'Flutter Demo Home Page'),
+    // );
     return MaterialApp(
       title: 'Sinsen',
       debugShowCheckedModeBanner: false,
@@ -19,13 +34,12 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.lightBlue,
           fontFamily: 'nyoba_font'
       ),
-      home: LoginPage(),
-      routes: routes,
-      // theme: ThemeData(
-        
-      //   primarySwatch: Colors.blue,
-      // ),
-      // home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Scaffold(
+      
+        body: LoginPage(),
+       
+      
+      ),
     );
   }
 }
