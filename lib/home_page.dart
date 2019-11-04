@@ -113,7 +113,7 @@ Future scan() async {
         setState(() => this.barcode = 'Unknown error: $e');
       }
     } on FormatException{
-      setState(() => this.barcode = 'null (User returned using the "back"-button before scanning anything. Result)');
+      setState(() => this.barcode = '');
     } catch (e) {
       setState(() => this.barcode = 'Unknown error: $e');
     }

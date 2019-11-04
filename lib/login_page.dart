@@ -1,5 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import 'validasi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'network_util.dart';
 //import 'package:login/home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -8,41 +13,133 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => new _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+enum LoginStatus { notSignIn, signIn }
+
+class _LoginPageState extends State<LoginPage> with Validasi {
+  LoginStatus _loginStatus = LoginStatus.notSignIn;
+  final formKey = GlobalKey<FormState>();
+
+  String emailInput = '';
+  String passwordInput = '';
+  bool _secureText = true;
+
+  showHide() {
+    setState(() {
+      _secureText = !_secureText;
+    });
+  }
+
+  check() {
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      login();
+    }
+  }
+
+  login() async {
+    final response = await http.post(BaseUrl.login,
+        body: {"nim": emailInput, "password": passwordInput});
+    final data = jsonDecode(response.body);
+    int value = data['value'];
+    String pesan = data['message'];
+
+    if (value == 1) {
+      setState(() {
+        _loginStatus = LoginStatus.signIn;
+      });
+      print(pesan);
+    } else {
+      print(pesan);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    final logo = Hero(
-      tag: 'hero',
-      child: CircleAvatar(
-        backgroundColor: Colors.transparent,
-        radius: 48.0,
-        child: Image.asset('asset/logo.png'),
-      ),
-    );
+  void initState() {
+    super.initState();
+  }
 
-    final email = TextFormField(
-      keyboardType: TextInputType.emailAddress,
+  @override
+  Widget build(context) {
+    switch (_loginStatus) {
+      case LoginStatus.notSignIn:
+        return Container(
+          margin: EdgeInsets.all(20.0),
+          child: Form(
+              key: formKey,
+              child: ListView(
+                children: [
+                  SizedBox(height: 100.0),
+                  Image.asset(
+                    'asset/logosinsen.png',
+                    width: 70.0,
+                    height: 70.0,
+                  ),
+                  SizedBox(height: 40.0),
+                  emailVoid(),
+                  SizedBox(height: 10.0),
+                  passwordVoid(),
+                  SizedBox(height: 24.0),
+                  loginButton(),
+                ],
+              )),
+        );
+        break;
+      case LoginStatus.signIn:
+        // return HomePage();
+        return HomePage();
+        break;
+    }
+  }
+
+  //
+  Widget emailVoid() {
+    return TextFormField(
+      keyboardType: TextInputType.number,
       autofocus: false,
       initialValue: '',
       decoration: InputDecoration(
-        hintText: 'Masukkan Email',
+        labelText: 'NIM',
+        hintText: 'Masukkan NIM',
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
       ),
+      validator: (e) {
+        if (e.isEmpty) {
+          return "Tolong Masukkan NIM";
+        }
+      },
+      onSaved: (e) => emailInput = e,
     );
+  }
 
-    final password = TextFormField(
+  Widget passwordVoid() {
+    return TextFormField(
       autofocus: false,
       initialValue: '',
-      obscureText: true,
+      obscureText: _secureText,
       decoration: InputDecoration(
-        hintText: 'Masukkan Passwords',
+        labelText: 'Password',
+        hintText: 'Masukkan Password',
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+        suffixIcon: IconButton(
+          onPressed: showHide,
+          icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility),
+        ),
       ),
+      validator: (e) {
+        if (e.isEmpty) {
+          return "Tolong Masukkan Password";
+        }
+      },
+      onSaved: (e) => passwordInput = e,
     );
+  }
 
-    final loginButton = Padding(
+  //
+  Widget loginButton() {
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: Material(
         borderRadius: BorderRadius.circular(30.0),
@@ -52,38 +149,10 @@ class _LoginPageState extends State<LoginPage> {
           minWidth: 200.0,
           height: 42.0,
           onPressed: () {
-            Navigator.of(context).pushNamed(HomePage.tag);
+            check();
           },
           color: Colors.lightBlueAccent,
           child: Text('Login', style: TextStyle(color: Colors.white)),
-        ),
-      ),
-    );
-
-    final forgotLabel = FlatButton(
-      child: Text(
-        'Lupa password?',
-        style: TextStyle(color: Colors.black54),
-      ),
-      onPressed: () {},
-    );
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.only(left: 24.0, right: 24.0),
-          children: <Widget>[
-            logo,
-            SizedBox(height: 48.0),
-            email,
-            SizedBox(height: 8.0),
-            password,
-            SizedBox(height: 24.0),
-            loginButton,
-            forgotLabel
-          ],
         ),
       ),
     );
