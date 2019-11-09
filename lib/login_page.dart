@@ -23,6 +23,11 @@ class _LoginPageState extends State<LoginPage> with Validasi {
   String passwordInput = '';
   bool _secureText = true;
 
+  String nim = '';
+  String nama = '';
+  String kelas = '';
+  String jurusan = '';
+
   showHide() {
     setState(() {
       _secureText = !_secureText;
@@ -41,17 +46,49 @@ class _LoginPageState extends State<LoginPage> with Validasi {
     final response = await http.post(BaseUrl.login,
         body: {"nim": emailInput, "password": passwordInput});
     final data = jsonDecode(response.body);
-    int value = data['value'];
-    String pesan = data['message'];
+    int value = data['error'];
+    String pesan = data['message'][0];
+    String _nama = data['nama'];
+    String _nim = data['nim'];
+    String _kelas = data['kelas'];
+    String _jurusan = data['jurusan'];
 
-    if (value == 1) {
+    if (value == 0) {
       setState(() {
         _loginStatus = LoginStatus.signIn;
       });
-      print(pesan);
+      _showDialog(pesan);
+      nama = _nama;
+      nim = _nim;
+      kelas = _kelas;
+      jurusan = _jurusan;
     } else {
-      print(pesan);
+      _showDialog(pesan);
     }
+  }
+
+  // user defined function
+  void _showDialog(pesan) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("PESAN!"),
+          content: new Text(pesan),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -86,8 +123,7 @@ class _LoginPageState extends State<LoginPage> with Validasi {
         );
         break;
       case LoginStatus.signIn:
-        // return HomePage();
-        return HomePage();
+        return HomePage(nama: nama, nim: nim, kelas: kelas, jurusan: jurusan);
         break;
     }
   }
